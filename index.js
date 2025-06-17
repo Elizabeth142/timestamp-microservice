@@ -4,36 +4,23 @@ const app = express();
 
 app.use(cors({ optionsSuccessStatus: 200 }));
 
-// Home route
 app.get('/', (req, res) => {
-  res.send('Timestamp Microservice is working!');
+  res.send('Request Header Parser Microservice');
 });
 
-// Main route (handle optional date manually)
-app.get('/api/:date', (req, res) => {
-  let dateParam = req.params.date;
+app.get('/api/whoami', (req, res) => {
+  const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+  const language = req.headers['accept-language'];
+  const software = req.headers['user-agent'];
 
-  // If it's a number, treat as Unix
-  if (!isNaN(dateParam)) {
-    dateParam = parseInt(dateParam);
-  }
-
-  const date = new Date(dateParam);
-
-  if (date.toString() === 'Invalid Date') {
-    return res.json({ error: 'Invalid Date' });
-  }
-
-  res.json({ unix: date.getTime(), utc: date.toUTCString() });
-});
-
-// Special route when no date is provided
-app.get('/api', (req, res) => {
-  const date = new Date();
-  res.json({ unix: date.getTime(), utc: date.toUTCString() });
+  res.json({
+    ipaddress: ip,
+    language: language,
+    software: software
+  });
 });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });
